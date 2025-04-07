@@ -179,6 +179,14 @@ docker logs mycontainer
 docker logs -f mycontainer
 ```
 
+The port publishing follows the logic
+```
+HOST_PORT:CONTAINER_PORT
+```
+with
+* HOST_PORT: The port number on your host machine where you want to receive traffic
+* CONTAINER_PORT: The port number within the container that's listening for connections
+
 ### Container Management
 ```bash
 # Execute a command in a running container
