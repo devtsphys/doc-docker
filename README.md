@@ -587,8 +587,7 @@ journalctl -u docker.service
 docker run --log-driver=json-file --log-opt debug myapp:1.0
 ```
 
-## Base Images
-# Docker Base Images Reference Guide
+# Base Images
 
 ## Operating System Base Images
 
