@@ -10,6 +10,7 @@
 - [Docker Volumes](#docker-volumes)
 - [Docker Security](#docker-security)
 - [Troubleshooting](#troubleshooting)
+- [Base Images](#base-images)
 
 ## Dockerfile Best Practices
 
@@ -585,3 +586,528 @@ journalctl -u docker.service
 # Run container with debug options
 docker run --log-driver=json-file --log-opt debug myapp:1.0
 ```
+
+## Base Images
+# Docker Base Images Reference Guide
+
+## Operating System Base Images
+
+### Ubuntu
+
+Most popular Linux distribution for containers due to familiarity and extensive package availability.
+
+**Variants:**
+
+- `ubuntu:24.04` (Noble Numbat) - Latest LTS
+- `ubuntu:22.04` (Jammy Jellyfish) - Previous LTS
+- `ubuntu:20.04` (Focal Fossa) - Older LTS
+- `ubuntu:latest` - Points to latest LTS
+
+**Characteristics:**
+
+- Size: ~77MB (24.04)
+- Package manager: apt
+- Shell: bash
+- Best for: General purpose, development, CI/CD
+
+### Alpine Linux
+
+Minimal, security-oriented Linux distribution designed for containers.
+
+**Variants:**
+
+- `alpine:3.19` - Latest stable
+- `alpine:3.18` - Previous stable
+- `alpine:edge` - Rolling release
+- `alpine:latest` - Points to latest stable
+
+**Characteristics:**
+
+- Size: ~7MB
+- Package manager: apk
+- Shell: ash (not bash)
+- C library: musl (not glibc)
+- Best for: Production, minimal footprint, security-focused
+
+### Debian
+
+Stable, well-maintained distribution, basis for Ubuntu.
+
+**Variants:**
+
+- `debian:12` (Bookworm) - Current stable
+- `debian:11` (Bullseye) - Previous stable
+- `debian:12-slim` - Minimal variant (~80MB vs ~124MB)
+- `debian:bullseye-slim`
+
+**Characteristics:**
+
+- Size: ~124MB (full), ~80MB (slim)
+- Package manager: apt
+- Shell: bash
+- Best for: Stability, compatibility, production
+
+### CentOS/Rocky Linux/AlmaLinux
+
+Enterprise Linux alternatives after CentOS Stream changes.
+
+**Variants:**
+
+- `rockylinux:9` - RHEL 9 compatible
+- `rockylinux:8` - RHEL 8 compatible
+- `almalinux:9` - RHEL 9 compatible
+- `centos:stream9` - Rolling release
+
+**Characteristics:**
+
+- Size: ~200-230MB
+- Package manager: yum/dnf
+- Shell: bash
+- Best for: Enterprise environments, RHEL compatibility
+
+### Fedora
+
+Cutting-edge Linux distribution from Red Hat.
+
+**Variants:**
+
+- `fedora:39` - Latest stable
+- `fedora:38` - Previous stable
+- `fedora:rawhide` - Development branch
+
+**Characteristics:**
+
+- Size: ~190MB
+- Package manager: dnf
+- Shell: bash
+- Best for: Latest features, development
+
+## Programming Language Images
+
+### Node.js
+
+Official Node.js runtime images.
+
+**Variants:**
+
+- `node:20` - Current LTS
+- `node:18` - Previous LTS
+- `node:20-alpine` - Alpine-based (~40MB vs ~400MB)
+- `node:20-slim` - Debian slim-based (~200MB)
+- `node:20-bullseye` - Debian Bullseye-based
+
+**Characteristics:**
+
+- Includes: Node.js, npm, yarn
+- Best for: JavaScript/TypeScript applications
+
+### Python
+
+Official Python interpreter images.
+
+**Variants:**
+
+- `python:3.12` - Latest stable
+- `python:3.11` - Previous stable
+- `python:3.12-slim` - Minimal Debian-based (~45MB vs ~130MB)
+- `python:3.12-alpine` - Alpine-based (~25MB)
+- `python:3.12-bullseye` - Full Debian Bullseye
+
+**Characteristics:**
+
+- Includes: Python, pip
+- Best for: Python applications, data science, ML
+
+### OpenJDK/Java
+
+Official Java Development Kit images.
+
+**Variants:**
+
+- `openjdk:21` - Latest LTS
+- `openjdk:17` - Previous LTS
+- `openjdk:11` - Older LTS
+- `openjdk:21-alpine` - Alpine-based
+- `openjdk:21-slim` - Debian slim-based
+
+**Alternative Java Images:**
+
+- `amazoncorretto:21` - Amazon’s OpenJDK distribution
+- `eclipse-temurin:21` - Eclipse Foundation’s OpenJDK
+- `adoptopenjdk:21-jre-hotspot` - (deprecated, use eclipse-temurin)
+
+### Go (Golang)
+
+Official Go programming language images.
+
+**Variants:**
+
+- `golang:1.21` - Latest stable
+- `golang:1.20` - Previous stable
+- `golang:1.21-alpine` - Alpine-based (~110MB vs ~380MB)
+- `golang:1.21-bullseye` - Debian-based
+
+**Characteristics:**
+
+- Includes: Go compiler, tools
+- Best for: Go applications, microservices
+
+### .NET
+
+Microsoft’s .NET runtime and SDK images.
+
+**Variants:**
+
+- `mcr.microsoft.com/dotnet/runtime:8.0` - Runtime only
+- `mcr.microsoft.com/dotnet/sdk:8.0` - Full SDK
+- `mcr.microsoft.com/dotnet/aspnet:8.0` - ASP.NET runtime
+- `mcr.microsoft.com/dotnet/runtime:8.0-alpine` - Alpine-based
+
+### PHP
+
+Official PHP interpreter images.
+
+**Variants:**
+
+- `php:8.3-fpm` - PHP-FPM for Nginx
+- `php:8.3-apache` - PHP with Apache
+- `php:8.3-cli` - Command line only
+- `php:8.3-alpine` - Alpine-based variants
+
+### Ruby
+
+Official Ruby interpreter images.
+
+**Variants:**
+
+- `ruby:3.3` - Latest stable
+- `ruby:3.2` - Previous stable
+- `ruby:3.3-alpine` - Alpine-based
+- `ruby:3.3-slim` - Debian slim-based
+
+### Rust
+
+Official Rust programming language images.
+
+**Variants:**
+
+- `rust:1.75` - Latest stable
+- `rust:1.75-alpine` - Alpine-based
+- `rust:1.75-slim` - Debian slim-based
+
+## Web Servers & Reverse Proxies
+
+### Nginx
+
+High-performance web server and reverse proxy.
+
+**Variants:**
+
+- `nginx:1.25` - Latest stable
+- `nginx:1.25-alpine` - Alpine-based (~40MB vs ~140MB)
+- `nginx:1.25-perl` - With Perl module
+- `nginx:mainline` - Development version
+
+**Characteristics:**
+
+- Config location: `/etc/nginx/nginx.conf`
+- Document root: `/usr/share/nginx/html`
+- Logs: `/var/log/nginx/`
+
+### Apache HTTP Server
+
+Traditional web server with extensive module support.
+
+**Variants:**
+
+- `httpd:2.4` - Latest stable
+- `httpd:2.4-alpine` - Alpine-based
+
+**Characteristics:**
+
+- Config location: `/usr/local/apache2/conf/httpd.conf`
+- Document root: `/usr/local/apache2/htdocs/`
+
+### Traefik
+
+Modern reverse proxy and load balancer.
+
+**Variants:**
+
+- `traefik:v3.0` - Latest major version
+- `traefik:v2.10` - Previous stable
+- `traefik:latest`
+
+## Databases
+
+### MySQL
+
+Popular relational database.
+
+**Variants:**
+
+- `mysql:8.0` - Latest stable
+- `mysql:5.7` - Older stable (deprecated)
+- `mysql:8.0-debian` - Debian-based
+
+**Environment Variables:**
+
+- `MYSQL_ROOT_PASSWORD`
+- `MYSQL_DATABASE`
+- `MYSQL_USER`/`MYSQL_PASSWORD`
+
+### PostgreSQL
+
+Advanced relational database.
+
+**Variants:**
+
+- `postgres:16` - Latest stable
+- `postgres:15` - Previous stable
+- `postgres:16-alpine` - Alpine-based
+
+**Environment Variables:**
+
+- `POSTGRES_PASSWORD`
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+
+### MongoDB
+
+NoSQL document database.
+
+**Variants:**
+
+- `mongo:7.0` - Latest stable
+- `mongo:6.0` - Previous stable
+
+### Redis
+
+In-memory data structure store.
+
+**Variants:**
+
+- `redis:7.2` - Latest stable
+- `redis:7.2-alpine` - Alpine-based (~30MB vs ~110MB)
+
+### MariaDB
+
+MySQL-compatible database server.
+
+**Variants:**
+
+- `mariadb:11.2` - Latest stable
+- `mariadb:10.11` - LTS version
+
+## Container Runtimes & Tools
+
+### Distroless
+
+Google’s minimal container images containing only application and runtime dependencies.
+
+**Variants:**
+
+- `gcr.io/distroless/java:17` - Java runtime
+- `gcr.io/distroless/python3` - Python runtime
+- `gcr.io/distroless/nodejs` - Node.js runtime
+- `gcr.io/distroless/static` - Static binaries only
+- `gcr.io/distroless/base` - Minimal base with glibc
+
+**Characteristics:**
+
+- No shell, package manager, or OS utilities
+- Extremely secure (minimal attack surface)
+- Very small size
+- Best for: Production, security-critical applications
+
+### Scratch
+
+Empty base image for static binaries.
+
+**Usage:**
+
+```dockerfile
+FROM scratch
+COPY myapp /
+CMD ["/myapp"]
+```
+
+**Characteristics:**
+
+- Size: 0MB
+- No OS, shell, or utilities
+- Best for: Static Go binaries, minimal containers
+
+### BusyBox
+
+Minimal Unix utilities in a single executable.
+
+**Variants:**
+
+- `busybox:1.36` - Latest stable
+- `busybox:uclibc` - uClibc-based
+- `busybox:glibc` - glibc-based
+
+**Characteristics:**
+
+- Size: ~2MB
+- Includes: Essential Unix utilities
+- Shell: ash
+
+## Cloud Provider Images
+
+### Amazon Linux
+
+AWS’s Linux distribution.
+
+**Variants:**
+
+- `amazonlinux:2023` - Latest generation
+- `amazonlinux:2` - Previous generation
+
+**Characteristics:**
+
+- Optimized for AWS
+- Package manager: yum/dnf
+- Size: ~160MB
+
+### Google Cloud
+
+Google’s container-optimized images.
+
+**Variants:**
+
+- `gcr.io/google.com/cloudsdktool/cloud-sdk` - Google Cloud SDK
+- `gcr.io/google.com/cloudsdktool/cloud-sdk:alpine`
+
+### Microsoft
+
+Microsoft’s container images.
+
+**Variants:**
+
+- `mcr.microsoft.com/windows/servercore` - Windows Server Core
+- `mcr.microsoft.com/windows/nanoserver` - Windows Nano Server
+
+## Specialized Images
+
+### Jenkins
+
+CI/CD automation server.
+
+**Variants:**
+
+- `jenkins/jenkins:lts` - Long Term Support
+- `jenkins/jenkins:latest` - Weekly releases
+
+### GitLab
+
+DevOps platform images.
+
+**Variants:**
+
+- `gitlab/gitlab-ce` - Community Edition
+- `gitlab/gitlab-ee` - Enterprise Edition
+- `gitlab/gitlab-runner` - CI/CD runner
+
+### Elasticsearch
+
+Search and analytics engine.
+
+**Variants:**
+
+- `elasticsearch:8.11.0`
+- `elasticsearch:7.17.16` - Previous major version
+
+### Kibana
+
+Data visualization for Elasticsearch.
+
+**Variants:**
+
+- `kibana:8.11.0`
+- `kibana:7.17.16`
+
+### Logstash
+
+Data processing pipeline.
+
+**Variants:**
+
+- `logstash:8.11.0`
+- `logstash:7.17.16`
+
+### RabbitMQ
+
+Message broker.
+
+**Variants:**
+
+- `rabbitmq:3.12` - Latest stable
+- `rabbitmq:3.12-management` - With web UI
+
+### Consul
+
+Service discovery and configuration.
+
+**Variants:**
+
+- `consul:1.16`
+- `consul:1.15`
+
+## Image Selection Guidelines
+
+### Size Considerations
+
+1. **Minimal (< 20MB)**: Alpine, Distroless, Scratch
+1. **Small (20-100MB)**: Debian slim, Ubuntu core
+1. **Medium (100-200MB)**: Standard Debian, Ubuntu
+1. **Large (> 200MB)**: Full-featured distributions
+
+### Security Considerations
+
+1. **Most Secure**: Distroless, Scratch
+1. **High Security**: Alpine (regular updates)
+1. **Standard Security**: Debian, Ubuntu LTS
+1. **Development Only**: Latest/edge versions
+
+### Compatibility Considerations
+
+1. **glibc vs musl**: Alpine uses musl, which can cause issues with some binaries
+1. **Package availability**: Ubuntu/Debian have more packages
+1. **Shell differences**: Alpine uses ash, not bash
+
+### Production Recommendations
+
+**Web Applications:**
+
+- Node.js: `node:18-alpine` or `node:18-slim`
+- Python: `python:3.11-slim` or `python:3.11-alpine`
+- Java: `eclipse-temurin:17-alpine` or `openjdk:17-slim`
+
+**Databases:**
+
+- PostgreSQL: `postgres:15-alpine`
+- MySQL: `mysql:8.0`
+- Redis: `redis:7-alpine`
+
+**Web Servers:**
+
+- Nginx: `nginx:alpine`
+- Apache: `httpd:2.4-alpine`
+
+**Minimal/Security-focused:**
+
+- Static binaries: `scratch` or `gcr.io/distroless/static`
+- Dynamic applications: `gcr.io/distroless/java` or similar
+
+## Best Practices for Base Image Selection
+
+1. **Use specific versions** instead of `latest`
+1. **Prefer official images** from Docker Hub
+1. **Choose Alpine for production** when compatibility allows
+1. **Use slim variants** to reduce size while maintaining compatibility
+1. **Consider Distroless** for maximum security
+1. **Match your development environment** to production base images
+1. **Regularly update** base images for security patches
+1. **Test thoroughly** when switching between glibc and musl (Alpine)
