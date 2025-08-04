@@ -355,6 +355,578 @@ docker-compose up -d --scale web=3
 docker-compose config
 ```
 
+### Core Concepts
+
+**Docker Compose**: A tool for defining and running multi-container Docker applications using YAML files to configure application services.
+
+**Supported file names** (in order of priority):
+
+- `docker-compose.yml`
+- `docker-compose.yaml`
+- `compose.yml`
+- `compose.yaml`
+
+**File versions**: Latest is Compose Specification, older numbered versions (2.x, 3.x) are still supported.
+
+### File Structure
+
+Basic structure of a `docker-compose.yml` file:
+
+```yaml
+version: "3.9"  # Optional in latest versions
+
+services:
+  service1:
+    # service configuration
+  service2:
+    # service configuration
+
+networks:
+  # network configuration
+
+volumes:
+  # volume configuration
+
+configs:
+  # configs configuration
+
+secrets:
+  # secrets configuration
+```
+
+### Command Reference
+
+|Command                                  |Description                         |
+|-----------------------------------------|------------------------------------|
+|`docker compose up`                      |Create and start containers         |
+|`docker compose up -d`                   |Start in detached mode              |
+|`docker compose down`                    |Stop and remove containers, networks|
+|`docker compose down -v`                 |Also remove volumes                 |
+|`docker compose ps`                      |List running containers             |
+|`docker compose logs`                    |View output from containers         |
+|`docker compose logs -f`                 |Follow log output                   |
+|`docker compose exec <service> <command>`|Execute command in a container      |
+|`docker compose build`                   |Build or rebuild services           |
+|`docker compose pull`                    |Pull service images                 |
+|`docker compose restart`                 |Restart services                    |
+|`docker compose stop`                    |Stop services                       |
+|`docker compose start`                   |Start services                      |
+|`docker compose rm`                      |Remove stopped containers           |
+|`docker compose config`                  |Validate and view compose file      |
+|`docker compose top`                     |Display running processes           |
+
+## Components & Configuration
+
+### Services
+
+Services define the containers that will be run:
+
+```yaml
+services:
+  webapp:
+    image: nginx:latest       # Use existing image
+    build: ./app              # Or build from Dockerfile
+    build:                    # Advanced build options
+      context: ./app
+      dockerfile: Dockerfile.dev
+      args:
+        ENV: development
+    ports:
+      - "80:80"               # HOST:CONTAINER
+      - "443:443"
+    expose:
+      - "8000"                # Only to other containers
+    volumes:
+      - ./app:/usr/share/nginx/html
+    environment:
+      - NODE_ENV=production
+    env_file: .env
+    restart: always           # none, on-failure, unless-stopped, always
+    depends_on:
+      - db
+    networks:
+      - frontend
+      - backend
+    deploy:                   # Settings for the deployed containers
+      replicas: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 50M
+    user: "1000:1000"         # Run as specific user:group
+    working_dir: /app         # Set working directory
+    entrypoint: ./entrypoint.sh
+    command: npm start        # Override default command
+```
+
+### Networks
+
+Define custom networks for communication between containers:
+
+```yaml
+networks:
+  frontend:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
+  backend:
+    driver: bridge
+  database:
+    external: true          # Use pre-existing network
+    name: actual-network-name
+```
+
+### Volumes
+
+Define persistent storage for your containers:
+
+```yaml
+volumes:
+  db-data:
+    driver: local           # Default local storage
+  cached-data:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  logs:
+    external: true          # Use pre-existing volume
+  nfs-data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.1.1,rw
+      device: ":/path/to/export"
+```
+
+### Configs & Secrets
+
+For storing configuration and sensitive data:
+
+```yaml
+configs:
+  app_config:
+    file: ./config/app.json
+  http_config:
+    content: |
+      server {
+        listen 80;
+        server_name example.com;
+      }
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+  api_key:
+    external: true
+    name: production_api_key
+```
+
+Using configs and secrets in services:
+
+```yaml
+services:
+  webapp:
+    image: nginx
+    configs:
+      - source: http_config
+        target: /etc/nginx/conf.d/site.conf
+    secrets:
+      - source: api_key
+        target: /run/secrets/api_key
+        mode: 0400
+```
+
+### Advanced Techniques
+
+### Environment Variables
+
+**In docker-compose.yml**:
+
+```yaml
+services:
+  webapp:
+    environment:
+      - DEBUG=1
+      - DATABASE_URL=postgres://user:pass@db:5432/dbname
+```
+
+**Using .env file**:
+
+```yaml
+services:
+  webapp:
+    env_file:
+      - .env.common
+      - .env.production
+```
+
+**Variable substitution**:
+
+```yaml
+services:
+  webapp:
+    image: ${REGISTRY:-localhost}/webapp:${TAG:-latest}
+    environment:
+      - NODE_ENV=${ENVIRONMENT:-development}
+```
+
+### Extending Configurations
+
+**Using extension fields**:
+
+```yaml
+# Common configuration to reuse
+x-common-service: &common-service
+  restart: always
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  web:
+    <<: *common-service  # Include common configuration
+    image: nginx
+```
+
+**Multiple compose files**:
+
+```bash
+# Override default configuration
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+```
+
+### Dependencies & Health Checks
+
+**Service dependencies**:
+
+```yaml
+services:
+  webapp:
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+```
+
+**Health checks**:
+
+```yaml
+services:
+  db:
+    image: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+```
+
+### Resource Management
+
+```yaml
+services:
+  webapp:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+```
+
+### Scaling Services
+
+```bash
+# Start multiple replicas of a service
+docker compose up --scale webapp=3 --scale worker=2
+```
+
+### Examples
+
+### Basic Web Application
+
+```yaml
+services:
+  web:
+    build: ./app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+    depends_on:
+      - db
+  
+  db:
+    image: postgres:14
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=user
+      - POSTGRES_DB=myapp
+
+volumes:
+  postgres_data:
+```
+
+### Microservices Architecture
+
+```yaml
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    networks:
+      - web
+    depends_on:
+      - api
+
+  api:
+    build: ./api
+    ports:
+      - "8080:8080"
+    networks:
+      - web
+      - internal
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DB_HOST=db
+      - REDIS_HOST=redis
+
+  db:
+    image: postgres:14
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - internal
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+    secrets:
+      - db_password
+
+  redis:
+    image: redis:alpine
+    networks:
+      - internal
+
+networks:
+  web:
+  internal:
+
+volumes:
+  db_data:
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+```
+
+### Development Environment
+
+```yaml
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    stdin_open: true # for interactive sessions
+    tty: true        # for terminal access
+```
+
+### Best Practices
+
+### File Organization
+
+1. **Multiple environments**:
+- Base file: `docker-compose.yml`
+- Override files: `docker-compose.dev.yml`, `docker-compose.prod.yml`
+1. **Project structure**:
+   
+   ```
+   ├── docker-compose.yml
+   ├── docker-compose.override.yml
+   ├── .env
+   ├── service1/
+   │   ├── Dockerfile
+   │   └── ...
+   ├── service2/
+   │   ├── Dockerfile
+   │   └── ...
+   ```
+1. **Using profiles** for grouped services:
+   
+   ```yaml
+   services:
+     app:
+       profiles: ["app", "dev"]
+     db:
+       profiles: ["app", "dev"]
+     selenium:
+       profiles: ["test"]
+   ```
+   
+   ```bash
+   # Start only services in the "dev" profile
+   docker compose --profile dev up
+   ```
+
+### Security
+
+1. **Never hardcode secrets** in Compose files.
+   
+   ```yaml
+   # Bad
+   environment:
+     - DB_PASSWORD=secretpassword
+   
+   # Good
+   environment:
+     - DB_PASSWORD_FILE=/run/secrets/db_password
+   secrets:
+     - db_password
+   ```
+1. **Use non-root users** in containers:
+   
+   ```yaml
+   services:
+     app:
+       user: "1000:1000"
+   ```
+1. **Set memory and CPU limits**:
+   
+   ```yaml
+   services:
+     app:
+       deploy:
+         resources:
+           limits:
+             cpus: '0.5'
+             memory: 256M
+   ```
+1. **Restrict network access**:
+   
+   ```yaml
+   services:
+     db:
+       networks:
+         - backend
+       # Not exposing ports to host
+   ```
+
+### Performance
+
+1. **Use bind mounts sparingly** in production:
+   
+   ```yaml
+   # Development
+   volumes:
+     - ./src:/app/src
+   
+   # Production
+   volumes:
+     - app_data:/app/data
+   ```
+1. **Optimize build context**:
+- Use `.dockerignore` files
+- Keep build context small
+1. **Use multi-stage builds** for smaller images:
+   
+   ```dockerfile
+   FROM node:16 AS builder
+   WORKDIR /app
+   COPY package*.json ./
+   RUN npm ci
+   COPY . .
+   RUN npm run build
+   
+   FROM nginx:alpine
+   COPY --from=builder /app/build /usr/share/nginx/html
+   ```
+
+### Maintainability
+
+1. **Use extension fields** for common configurations:
+   
+   ```yaml
+   x-logging: &default-logging
+     logging:
+       driver: "json-file"
+       options:
+         max-size: "10m"
+         max-file: "3"
+   
+   services:
+     web:
+       <<: *default-logging
+     db:
+       <<: *default-logging
+   ```
+1. **Version control** your Compose files.
+1. **Document** with comments:
+   
+   ```yaml
+   services:
+     web:
+       # This service handles all incoming HTTP requests
+       # and serves the frontend application
+       image: myapp/frontend:latest
+   ```
+1. **Use meaningful names** for services, networks, and volumes.
+
+### Troubleshooting
+
+Common issues and solutions:
+
+1. **Connection refused between services**
+- Check network configuration
+- Ensure service names are used as hostnames
+1. **Volume permissions**
+- Set appropriate user in service
+- Check host directory permissions
+1. **Service startup order**
+- Use `depends_on` with condition
+- Implement retry logic in application
+1. **Debugging containers**
+   
+   ```bash
+   # Check logs
+   docker compose logs service_name
+   
+   # Execute into container
+   docker compose exec service_name sh
+   
+   # Check configuration
+   docker compose config
+   ```
+1. **Resource constraints**
+- Check container resource usage
+- Adjust memory/CPU limits
+
 ## Docker Networking
 
 ### Network Types
